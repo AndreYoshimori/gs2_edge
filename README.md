@@ -71,6 +71,7 @@ Quando o score cai:
 ---
 
 ## 📌 4. Estrutura do Repositório
+
 ```
 /
 ├── mindbreak.ino               # Código completo do projeto (ESP32 + score + MQTT)
@@ -83,6 +84,7 @@ Quando o score cai:
 │   └── leds_buzzer.png
 └── README.md                   # Documentação oficial do projeto
 ```
+
 ---
 
 ## 📌 5. Como executar
