@@ -1,0 +1,403 @@
+[
+  {
+    "id": "tab_mindbreak",
+    "type": "tab",
+    "label": "Mind Break",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt_broker_mindbreak",
+    "type": "mqtt-broker",
+    "name": "Mosquitto Test",
+    "broker": "test.mosquitto.org",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "sessionExpiry": ""
+  },
+  {
+    "id": "ui_tab_mindbreak",
+    "type": "ui_tab",
+    "name": "Mind Break",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_status",
+    "type": "ui_group",
+    "name": "Status de Foco",
+    "tab": "ui_tab_mindbreak",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_detalhes",
+    "type": "ui_group",
+    "name": "Detalhes do Ambiente",
+    "tab": "ui_tab_mindbreak",
+    "order": 2,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_in_sensor",
+    "type": "mqtt in",
+    "z": "tab_mindbreak",
+    "name": "Leitura MindBreak",
+    "topic": "mindbreak/sensor",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_mindbreak",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "json_parse",
+        "debug_sensor"
+      ]
+    ]
+  },
+  {
+    "id": "json_parse",
+    "type": "json",
+    "z": "tab_mindbreak",
+    "name": "JSON -> Obj",
+    "property": "payload",
+    "action": "obj",
+    "pretty": false,
+    "x": 380,
+    "y": 100,
+    "wires": [
+      [
+        "change_score",
+        "change_alerta_texto",
+        "change_temp",
+        "change_luz",
+        "change_ruido",
+        "chart_score"
+      ]
+    ]
+  },
+  {
+    "id": "debug_sensor",
+    "type": "debug",
+    "z": "tab_mindbreak",
+    "name": "Debug Sensor",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 380,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "change_score",
+    "type": "change",
+    "z": "tab_mindbreak",
+    "name": "Extrair score",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.score",
+        "tot": "msg"
+      }
+    ],
+    "x": 620,
+    "y": 60,
+    "wires": [
+      [
+        "gauge_score"
+      ]
+    ]
+  },
+  {
+    "id": "gauge_score",
+    "type": "ui_gauge",
+    "z": "tab_mindbreak",
+    "name": "Score de Foco",
+    "group": "ui_group_status",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "Score de Foco",
+    "label": "%",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "100",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "40",
+    "seg2": "70",
+    "className": ""
+  },
+  {
+    "id": "chart_score",
+    "type": "ui_chart",
+    "z": "tab_mindbreak",
+    "name": "Histórico do Score",
+    "group": "ui_group_status",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "label": "Histórico do Score",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "Sem dados ainda",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "100",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#aec7e8",
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 650,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "change_alerta_texto",
+    "type": "change",
+    "z": "tab_mindbreak",
+    "name": "Texto alerta",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "\"Alerta: \" & payload.alerta & \" (score=\" & payload.score & \")\"",
+        "tot": "jsonata"
+      }
+    ],
+    "x": 640,
+    "y": 220,
+    "wires": [
+      [
+        "text_alerta"
+      ]
+    ]
+  },
+  {
+    "id": "text_alerta",
+    "type": "ui_text",
+    "z": "tab_mindbreak",
+    "group": "ui_group_status",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "name": "Estado de Alerta",
+    "label": "Estado de Alerta",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": ""
+  },
+  {
+    "id": "change_temp",
+    "type": "change",
+    "z": "tab_mindbreak",
+    "name": "Texto temperatura",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "\"Temperatura: \" & (payload.temperatura = null ? \"N/A\" : payload.temperatura & \" °C\")",
+        "tot": "jsonata"
+      }
+    ],
+    "x": 670,
+    "y": 280,
+    "wires": [
+      [
+        "text_temp"
+      ]
+    ]
+  },
+  {
+    "id": "text_temp",
+    "type": "ui_text",
+    "z": "tab_mindbreak",
+    "group": "ui_group_detalhes",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "name": "Temperatura",
+    "label": "",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": ""
+  },
+  {
+    "id": "change_luz",
+    "type": "change",
+    "z": "tab_mindbreak",
+    "name": "Texto luz",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "\"Luz (LDR): \" & payload.luz",
+        "tot": "jsonata"
+      }
+    ],
+    "x": 650,
+    "y": 340,
+    "wires": [
+      [
+        "text_luz"
+      ]
+    ]
+  },
+  {
+    "id": "text_luz",
+    "type": "ui_text",
+    "z": "tab_mindbreak",
+    "group": "ui_group_detalhes",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "name": "Luz",
+    "label": "",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": ""
+  },
+  {
+    "id": "change_ruido",
+    "type": "change",
+    "z": "tab_mindbreak",
+    "name": "Texto ruído",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "\"Ruído (pot): \" & payload.ruido",
+        "tot": "jsonata"
+      }
+    ],
+    "x": 660,
+    "y": 400,
+    "wires": [
+      [
+        "text_ruido"
+      ]
+    ]
+  },
+  {
+    "id": "text_ruido",
+    "type": "ui_text",
+    "z": "tab_mindbreak",
+    "group": "ui_group_detalhes",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "name": "Ruído",
+    "label": "",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": ""
+  },
+  {
+    "id": "mqtt_in_alerta",
+    "type": "mqtt in",
+    "z": "tab_mindbreak",
+    "name": "Alertas MindBreak",
+    "topic": "mindbreak/alerta",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_mindbreak",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 170,
+    "y": 460,
+    "wires": [
+      [
+        "debug_alerta",
+        "ui_toast_alerta"
+      ]
+    ]
+  },
+  {
+    "id": "debug_alerta",
+    "type": "debug",
+    "z": "tab_mindbreak",
+    "name": "Debug Alerta",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "ui_toast_alerta",
+    "type": "ui_toast",
+    "z": "tab_mindbreak",
+    "position": "top right",
+    "displayTime": "5",
+    "highlight": "",
+    "outputs": 0,
+    "ok": "OK",
+    "cancel": "",
+    "raw": false,
+    "topic": "",
+    "name": "Notificação de Alerta",
+    "x": 450,
+    "y": 520,
+    "wires": []
+  }
+]
